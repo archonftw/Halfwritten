@@ -20,7 +20,6 @@ export default function Navbar() {
 
   return (
     <div>
-      <h1>Sup</h1>
       <Dock 
         items={items}
         panelHeight={80}
