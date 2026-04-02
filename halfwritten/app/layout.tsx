@@ -25,14 +25,15 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en" className='h-full' >
-      <body className={`${geistSans.variable} ${geistMono.variable} h-full `}>
+    <html lang="en" className="h-full">
+      <body className={`${geistSans.variable} ${geistMono.variable} h-full`}>
         <ClerkProvider>
-          <div className="fixed top-4 right-4 z-50 ">
-        <UserButton appearance={{UserButton:{width:"50px",height:"100px"}}}/>
-      </div>
+          <div className="fixed top-4 right-4 z-50">
+            <UserButton />
+          </div>
+
+          <Navbar />
           {children}
-          <Navbar/>
         </ClerkProvider>
       </body>
     </html>

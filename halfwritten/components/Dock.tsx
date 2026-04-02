@@ -154,37 +154,40 @@ export default function Dock({
   const height = useSpring(heightRow, spring);
 
   return (
-    <motion.div style={{ height, scrollbarWidth: 'none' }} className="mx-2 flex max-w-full items-center">
-      <motion.div
-        onMouseMove={({ pageX }) => {
-          isHovered.set(1);
-          mouseX.set(pageX);
-        }}
-        onMouseLeave={() => {
-          isHovered.set(0);
-          mouseX.set(Infinity);
-        }}
-        className={`${className} absolute bottom-2 left-1/2 transform -translate-x-1/2 flex items-end w-fit gap-4 rounded-2xl border-neutral-700 border-2 pb-2 px-4`}
-        style={{ height: panelHeight }}
-        role="toolbar"
-        aria-label="Application dock"
-      >
-        {items.map((item, index) => (
-          <DockItem
-            key={index}
-            onClick={item.onClick}
-            className={item.className}
-            mouseX={mouseX}
-            spring={spring}
-            distance={distance}
-            magnification={magnification}
-            baseItemSize={baseItemSize}
-          >
-            <DockIcon>{item.icon}</DockIcon>
-            <DockLabel>{item.label}</DockLabel>
-          </DockItem>
-        ))}
-      </motion.div>
+  <motion.div
+    className="fixed bottom-2 left-1/2 z-50 -translate-x-1/2 flex items-end"
+    onMouseMove={({ pageX }) => {
+      isHovered.set(1);
+      mouseX.set(pageX);
+    }}
+    onMouseLeave={() => {
+      isHovered.set(0);
+      mouseX.set(Infinity);
+    }}
+    style={{ height }}
+    role="toolbar"
+    aria-label="Application dock"
+  >
+    <motion.div
+      className={`${className} flex items-end w-fit gap-4 rounded-2xl border-neutral-700 border-2 pb-2 px-4 bg-[#060010]`}
+      style={{ height: panelHeight }}
+    >
+      {items.map((item, index) => (
+        <DockItem
+          key={index}
+          onClick={item.onClick}
+          className={item.className}
+          mouseX={mouseX}
+          spring={spring}
+          distance={distance}
+          magnification={magnification}
+          baseItemSize={baseItemSize}
+        >
+          <DockIcon>{item.icon}</DockIcon>
+          <DockLabel>{item.label}</DockLabel>
+        </DockItem>
+      ))}
     </motion.div>
-  );
+  </motion.div>
+);
 }
