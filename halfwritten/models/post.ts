@@ -16,14 +16,16 @@ const postSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-
     authorName: {
       type: String,
     },
-
     authorImage: {
       type: String,
     },
+    likedBy: {
+      type: [String],
+      default: [],
+    }
   },
   {
     timestamps: true,
