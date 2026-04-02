@@ -13,7 +13,7 @@ export default function Navbar() {
 
   const items = [
     { icon: <VscHome size={18} />, label: 'Home', onClick: () => goToRoute('/') },
-    { icon: <VscArchive size={18} />, label: 'Archive', onClick: () => goToRoute('/archive') },
+    { icon: <VscArchive size={18} />, label: 'Post', onClick: () => goToRoute('/post') },
     { icon: <VscAccount size={18} />, label: 'Profile', onClick: () => goToRoute('/profile') },
     { icon: <VscSettingsGear size={18} />, label: 'Settings', onClick: () => goToRoute('/settings') },
   ];
