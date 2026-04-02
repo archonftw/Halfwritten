@@ -20,7 +20,7 @@ export default function Navbar() {
 
   return (
     <div>
-      <Dock 
+      <Dock className="bg-black"
         items={items}
         panelHeight={80}
         baseItemSize={60}

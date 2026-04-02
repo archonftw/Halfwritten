@@ -3,7 +3,11 @@
 @import "shadcn/tailwind.css";
 
 body{
-    overflow: hidden;
     background-color: black !important;
     color: white !important;
+    scrollbar-width: 0 !important; 
+}
+
+::-webkit-scrollbar {
+  display: none;
 }

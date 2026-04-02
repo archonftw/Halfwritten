@@ -3,6 +3,8 @@
 import { useState } from "react";
 import BorderGlow from "@/components/BorderGlow";
 import { formatDistanceToNow } from "date-fns";
+import GradientText from "@/components/GradientText";
+import { loveFont,googleFont } from "./Welcome";
 
 type PostType = {
   _id: string;
@@ -77,15 +79,17 @@ export default function ShowPostsClient({ initialPosts }: Props) {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold ml-4">Stories</h1>
+      <div className="p-4 bg-black sticky top-0 z-10" >
+        <h1 className="text-2xl font-bold ml-4">Stories</h1>
 
       <input
         type="text"
         placeholder="Search posts..."
         value={search}
         onChange={(e) => setSearch(e.target.value)}
-        className="border p-2 m-4 bg-white rounded-2xl text-black"
+        className="border p-2 m-4 rounded-2xl text-white w-1/2 bg-transparent"
       />
+      </div>
 
       {filteredPosts.length === 0 ? (
         <p className="ml-4">No posts found.</p>
@@ -96,11 +100,11 @@ export default function ShowPostsClient({ initialPosts }: Props) {
               <BorderGlow
                 edgeSensitivity={30}
                 glowColor="40 80 80"
-                backgroundColor="#060010"
-                borderRadius={28}
-                glowRadius={40}
+                backgroundColor="rgba(20, 10, 6, 0.8)"
+                borderRadius={10}
+                glowRadius={60}
                 glowIntensity={1}
-                coneSpread={25}
+                coneSpread={30}
                 animated={false}
                 colors={["#c084fc", "#f472b6", "#38bdf8"]}
                 className="m-5"
@@ -115,10 +119,20 @@ export default function ShowPostsClient({ initialPosts }: Props) {
                     <h1 className="font-semibold text-lg">{post.authorName}</h1>
                   </div>
 
-                  <h2 className="text-xl font-bold">{post.title}</h2>
-                  <p className="text-gray-300">{post.content}</p>
+                  <GradientText
+                            colors={["#5227FF","#FF9FFC","#B19EEF"]}
+                            animationSpeed={8}
+                            showBorder={false}
+                            className={`ml-0 text-xl ${loveFont.className}`}
+                          >
+                            {post.title}
+                          </GradientText>
+                  <p className={`text-gray-300 ${googleFont.className}`}>
+                    {post.content}
+                  </p>
 
-                  <p className="text-sm text-gray-400">
+                  <div className="flex justify-between items-center">
+                    <p className="text-sm text-gray-400">
                     {formatDistanceToNow(new Date(post.createdAt), {
                       addSuffix: true,
                     })}
@@ -139,6 +153,7 @@ export default function ShowPostsClient({ initialPosts }: Props) {
                       ? `❤️ Liked (${post.likes})`
                       : `🤍 Like (${post.likes})`}
                   </button>
+                  </div>
                 </div>
               </BorderGlow>
             </li>
