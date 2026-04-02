@@ -1,43 +1,76 @@
-// app/components/ShowPosts.tsx
-import DBconnect from "@/lib/db";
-import Post from "@/models/post";
+"use client";
 
-export default async function ShowPosts() {
-  try {
-    await DBconnect();
+import { useState } from "react";
+import BorderGlow from "@/components/BorderGlow"; 
 
-    const posts = await Post.find({}).sort({ createdAt: -1 });
+type PostType = {
+  _id: string;
+  title: string;
+  authorName: string;
+  authorId:string;
+  content: string;
+  createdAt: string;
+  updatedAt: string;
+};
 
-    const formattedPosts = posts.map((post) => ({
-      _id: post._id.toString(),
-      title: String(post.title),
-      content: String(post.content),
-      createdAt: new Date(post.createdAt).toISOString(),
-      updatedAt: new Date(post.updatedAt).toISOString(),
-    }));
+interface Props {
+  initialPosts: PostType[];
+}
 
-    return (
-      <div>
-        <h1 className="text-2xl font-bold mb-4">Posts</h1>
-        {formattedPosts.length === 0 ? (
-          <p>No posts available.</p>
-        ) : (
-          <ul>
-            {formattedPosts.map((post) => (
-              <li key={post._id} className="mb-6">
-                <h2 className="font-semibold text-lg">{post.title}</h2>
-                <p>{post.content}</p>
-                <small className="text-gray-500">
-                  Created at: {new Date(post.createdAt).toLocaleString()}
-                </small>
-              </li>
-            ))}
-          </ul>
-        )}
-      </div>
-    );
-  } catch (error) {
-    console.error("Error fetching posts:", error);
-    return <p>Failed to load posts.</p>;
-  }
+export default function ShowPostsClient({ initialPosts }: Props) {
+  // Client-side state
+  const [posts, setPosts] = useState<PostType[]>(initialPosts);
+  const [search, setSearch] = useState("");
+
+  // Example: filter posts by title
+  const filteredPosts = posts.filter((post) =>
+    post.title.toLowerCase().includes(search.toLowerCase())
+  );
+
+  return (
+    <div>
+      <h1 className="text-2xl font-bold mb-4">Posts</h1>
+
+      {/* Client-side interaction */}
+      <input
+        type="text"
+        placeholder="Search posts..."
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+        className="border p-2 m-4"
+      />
+      
+
+      {filteredPosts.length === 0 ? (
+        <p>No posts found.</p>
+      ) : (
+        <ul>
+          {filteredPosts.map((post) => (
+            <li key={post._id} >
+              
+<BorderGlow
+  edgeSensitivity={30}
+  glowColor="40 80 80"
+  backgroundColor="#060010"
+  borderRadius={28}
+  glowRadius={40}
+  glowIntensity={1}
+  coneSpread={25}
+  animated={false}
+  colors={['#c084fc', '#f472b6', '#38bdf8']} 
+  className="h-50 m-5"
+>
+  <div style={{ padding: '2em' }}>
+    <h1>{post.authorName}</h1>
+    <h2>{post.title}</h2>
+    <p>{post.content}</p>
+    <p>{post.createdAt}</p>
+  </div>
+</BorderGlow>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
 }

@@ -1,27 +1,36 @@
 import mongoose from "mongoose";
 
-const postSchema = new mongoose.Schema({
-    title:{
-        type:String,
-        required:true,
+const postSchema = new mongoose.Schema(
+  {
+    title: {
+      type: String,
+      required: true,
     },
-    content:{
-        type:String,
-        required:true,
-    },
-    createdAt:{
-        type:Date,
-        default:Date.now,
-    },
-    updatedAt:{
-        type:Date,
-        default:Date.now,
-    }
 
-})
+    content: {
+      type: String,
+      required: true,
+    },
 
-// ✅ Check if model already exists
+    authorId: {
+      type: String,
+      required: true,
+    },
+
+    authorName: {
+      type: String,
+    },
+
+    authorImage: {
+      type: String,
+    },
+  },
+  {
+    timestamps: true,
+  }
+);
+
+// ✅ Prevent OverwriteModelError in Next.js dev mode
 const Post = mongoose.models.Post || mongoose.model("Post", postSchema);
-
 
 export default Post;
