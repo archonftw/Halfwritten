@@ -6,8 +6,8 @@ body{
     background-color: black !important;
     color: white !important;
     scrollbar-width: 0 !important; 
+    margin: 0;
 }
-
 ::-webkit-scrollbar {
   display: none;
 }
