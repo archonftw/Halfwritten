@@ -4,7 +4,7 @@ import { useState } from "react";
 import BorderGlow from "@/components/BorderGlow";
 import { formatDistanceToNow } from "date-fns";
 import GradientText from "@/components/GradientText";
-import { loveFont,googleFont } from "./Welcome";
+import { loveFont,googleFont } from "@/lib/fonts";
 
 type PostType = {
   _id: string;

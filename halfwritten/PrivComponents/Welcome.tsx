@@ -1,17 +1,9 @@
 "use client"
-import { Love_Ya_Like_A_Sister,Google_Sans } from "next/font/google";
 import GradientText from "@/components/GradientText";
 import FlowingMenu from "@/components/FlowingMenu";
+import { loveFont } from "@/lib/fonts";
 
 
-
-export const loveFont = Love_Ya_Like_A_Sister({
-  weight: '400',
-});
-export const googleFont = Google_Sans({
-  weight:   '400',
-  // subsets: ['latin'],
-});
 
 
 

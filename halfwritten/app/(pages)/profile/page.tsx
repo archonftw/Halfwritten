@@ -1,12 +1,12 @@
 "use client";
 
-import React, { useEffect, useMemo, useState } from "react";
-import { loveFont } from "@/PrivComponents/Welcome";
+import { useEffect, useMemo, useState } from "react";
 import GradientText from "@/components/GradientText";
 import { useUser } from "@clerk/nextjs";
 import Image from "next/image";
 import { Heart, Bookmark, FileText } from "lucide-react";
 import TargetCursor from '@/components/TargetCursor'
+import { loveFont } from "@/lib/fonts";
 
 
 type PostType = {
