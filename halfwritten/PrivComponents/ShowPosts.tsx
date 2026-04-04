@@ -4,7 +4,8 @@ import { useState } from "react";
 import BorderGlow from "@/components/BorderGlow";
 import { formatDistanceToNow } from "date-fns";
 import GradientText from "@/components/GradientText";
-import { loveFont,googleFont } from "@/lib/fonts";
+import { loveFont } from "@/lib/fonts";
+import Link from "next/link";
 
 type PostType = {
   _id: string;
@@ -97,6 +98,7 @@ export default function ShowPostsClient({ initialPosts }: Props) {
         <ul>
           {filteredPosts.map((post) => (
             <li key={post._id}>
+                <Link href={`/post/${post._id}`}>
               <BorderGlow
                 edgeSensitivity={30}
                 glowColor="40 80 80"
@@ -121,13 +123,13 @@ export default function ShowPostsClient({ initialPosts }: Props) {
 
                   <GradientText
                             colors={["#5227FF","#FF9FFC","#B19EEF"]}
-                            animationSpeed={8}
+                            animationSpeed={3}
                             showBorder={false}
                             className={`ml-0 text-xl ${loveFont.className}`}
                           >
                             {post.title}
                           </GradientText>
-                  <p className={`text-gray-300 ${googleFont.className}`}>
+                  <p className={`text-gray-300 `}>
                     {post.content}
                   </p>
 
@@ -156,6 +158,7 @@ export default function ShowPostsClient({ initialPosts }: Props) {
                   </div>
                 </div>
               </BorderGlow>
+            </Link>
             </li>
           ))}
         </ul>

@@ -7,6 +7,7 @@ import Image from "next/image";
 import { Heart, Bookmark, FileText } from "lucide-react";
 import TargetCursor from '@/components/TargetCursor'
 import { loveFont } from "@/lib/fonts";
+import { Button } from "@/components/ui/button";
 
 
 type PostType = {
@@ -170,9 +171,9 @@ function Page() {
                 </div>
               </div>
 
-              <button className="cursor-target mt-6 w-full rounded-xl bg-purple-600 hover:bg-purple-500 transition py-3 font-medium">
+              <Button className="cursor-target mt-6 w-full rounded-xl border-4-white hover:bg-gray-900 transition py-3 font-medium">
                 Edit Profile
-              </button>
+              </Button>
             </div>
 
             {/* RIGHT CONTENT */}

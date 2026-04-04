@@ -10,10 +10,10 @@ import { loveFont } from "@/lib/fonts";
 export default function Welcome() {
 
 const demoItems = [
-  { link: '#', text: 'The words you never said', image: 'https://picsum.photos/600/400?random=1' },
-  { link: '#', text: 'The ending that never came', image: 'https://picsum.photos/600/400?random=2' },
-  { link: '#', text: 'The memory that still hurts', image: 'https://picsum.photos/600/400?random=3' },
-  { link: '#', text: 'Write what was left behind', image: 'https://picsum.photos/600/400?random=4' }
+  { link: '', text: 'The words you never said', image: 'https://picsum.photos/600/400?random=1' },
+  { link: '', text: 'The ending that never came', image: 'https://picsum.photos/600/400?random=2' },
+  { link: '', text: 'The memory that still hurts', image: 'https://picsum.photos/600/400?random=3' },
+  { link: '', text: 'Write what was left behind', image: 'https://picsum.photos/600/400?random=4' }
 ];
 
 

@@ -25,7 +25,35 @@ const postSchema = new mongoose.Schema(
     likedBy: {
       type: [String],
       default: [],
-    }
+    },
+    comments: {
+  type: [
+    {
+      userId: {
+        type: String,
+        required: true,
+      },
+      username: {
+        type: String,
+        required: true,
+        default:"Anonymous"
+      },
+      userImage: {
+        type: String,
+        default: "",
+      },
+      text: {
+        type: String,
+        required: true,
+      },
+      createdAt: {
+        type: Date,
+        default: Date.now,
+      },
+    },
+  ],
+  default: [],
+}
   },
   {
     timestamps: true,
