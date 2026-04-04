@@ -72,7 +72,7 @@ export default function Form() {
 
   return (
     <div className="w-9/10 h-full">
-      <Toaster position="top-center" />
+      <Toaster position="top-right" />
 
       <form onSubmit={handleSubmit}>
         <h1 className="mb-4 text-xl font-semibold">Tell your story</h1>

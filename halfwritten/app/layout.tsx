@@ -3,6 +3,7 @@ import { ClerkProvider, Show, SignInButton, SignUpButton, UserButton } from '@cl
 import { Geist, Geist_Mono } from 'next/font/google'
 import './globals.css'
 import Navbar from '../PrivComponents/Navbar'
+import { Toaster } from 'react-hot-toast'
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -28,6 +29,7 @@ export default function RootLayout({
     <html lang="en" className="h-full">
       <body className={`${geistSans.variable} ${geistMono.variable} h-full`}>
         <ClerkProvider>
+          <Toaster position='top-right'/>
           <div className="fixed top-4 right-4 z-50">
             <UserButton />
           </div>
