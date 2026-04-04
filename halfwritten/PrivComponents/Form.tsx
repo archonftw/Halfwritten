@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { useState,useEffect } from "react";
 import toast, { Toaster } from "react-hot-toast";
 import { Button } from "@/components/ui/button";
+import { cormorantFont, loveFont } from "@/lib/fonts";
 
 export default function Form() {
   const [title, setTitle] = useState("");
@@ -75,7 +76,7 @@ export default function Form() {
       <Toaster position="top-right" />
 
       <form onSubmit={handleSubmit}>
-        <h1 className="mb-4 text-xl font-semibold">Tell your story</h1>
+        <h1 className={` ${loveFont.className} mb-4 text-xl font-semibold`}>Tell your story</h1>
 
         <div className="flex flex-col  gap-4">
           <div className="cursor-target">

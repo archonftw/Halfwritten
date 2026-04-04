@@ -1,9 +1,11 @@
 import Form from '@/PrivComponents/Form'
 import ShowPostsServer from '@/PrivComponents/ShowPostsServer'
+import OnboardingGuard from '@/PrivComponents/onboardingGuard'
 
 function page() {
   return (
-    <div className='w-full min-h-screen flex flex-col md:flex-row overflow-auto'>
+    <OnboardingGuard>
+      <div className='w-full min-h-screen flex flex-col md:flex-row overflow-auto'>
       
       {/* Posts Panel — full width on mobile, 3/4 on desktop */}
       <div className='w-full md:w-3/4 m-2 md:m-3 rounded-2xl outline overflow-auto order-2 md:order-1'>
@@ -16,6 +18,7 @@ function page() {
       </div>
 
     </div>
+    </OnboardingGuard>
   )
 }
 

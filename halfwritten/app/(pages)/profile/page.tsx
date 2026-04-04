@@ -3,11 +3,12 @@
 import { useEffect, useMemo, useState } from "react";
 import GradientText from "@/components/GradientText";
 import { useUser } from "@clerk/nextjs";
-import Image from "next/image";
-import { Heart, Bookmark, FileText } from "lucide-react";
-import TargetCursor from '@/components/TargetCursor'
+import { Heart, Bookmark, FileText, Users, UserPlus } from "lucide-react";
+import TargetCursor from "@/components/TargetCursor";
 import { loveFont } from "@/lib/fonts";
 import { Button } from "@/components/ui/button";
+import OnboardingGuard from '@/PrivComponents/onboardingGuard'
+import Link from "next/link";
 
 
 type PostType = {
@@ -18,14 +19,41 @@ type PostType = {
   likesCount?: number;
 };
 
+type AppUserType = {
+  _id: string;
+  anonymousName: string;
+  bio?: string;
+  avatarSeed?: string;
+  followers?: string[];
+  following?: string[];
+};
+
 function Page() {
   const { user, isLoaded } = useUser();
 
   const [posts, setPosts] = useState<PostType[]>([]);
+  const [appUser, setAppUser] = useState<AppUserType | null>(null);
   const [loadingPosts, setLoadingPosts] = useState(true);
+  const [loadingProfile, setLoadingProfile] = useState(true);
   const [activeTab, setActiveTab] = useState<"chapters" | "saved">("chapters");
 
   useEffect(() => {
+    const fetchProfileData = async () => {
+      try {
+        setLoadingProfile(true);
+        const res = await fetch("/api/user/me");
+        const data = await res.json();
+
+        if (data.success) {
+          setAppUser(data.user);
+        }
+      } catch (error) {
+        console.error("Failed to fetch app user profile:", error);
+      } finally {
+        setLoadingProfile(false);
+      }
+    };
+
     const fetchMyPosts = async () => {
       try {
         setLoadingPosts(true);
@@ -43,15 +71,22 @@ function Page() {
     };
 
     if (isLoaded && user) {
+      fetchProfileData();
       fetchMyPosts();
     } else if (isLoaded && !user) {
       setLoadingPosts(false);
+      setLoadingProfile(false);
     }
   }, [isLoaded, user]);
 
   const totalLikes = useMemo(() => {
     return posts.reduce((acc, post) => acc + (post.likesCount || 0), 0);
   }, [posts]);
+
+  const initials = useMemo(() => {
+    if (!appUser?.anonymousName) return "HW";
+    return appUser.anonymousName.slice(0, 2).toUpperCase();
+  }, [appUser]);
 
   if (!isLoaded) {
     return (
@@ -103,7 +138,8 @@ function Page() {
   }
 
   return (
-    <div className="min-h-screen bg-black text-white">
+    <OnboardingGuard>
+      <div className="min-h-screen bg-black text-white">
       <TargetCursor />
 
       {/* Heading */}
@@ -126,25 +162,31 @@ function Page() {
             {/* LEFT SIDEBAR */}
             <div className="border border-zinc-800 rounded-2xl bg-zinc-950/60 backdrop-blur-sm p-5 h-fit lg:h-full overflow-y-auto">
               <div className="flex flex-col items-center text-center">
-                <div className="relative h-24 w-24 rounded-full overflow-hidden border-2 border-purple-400/50 shadow-[0_0_25px_rgba(168,85,247,0.25)]">
-                  <Image
-                    src={user.imageUrl}
-                    alt={user.fullName || "User"}
-                    fill
-                    className="object-cover"
-                  />
-                </div>
+                {/* Anonymous Avatar */}
+                <img
+  src={`https://api.dicebear.com/7.x/thumbs/svg?seed=${appUser?.avatarSeed || appUser?.anonymousName || "halfwritten"}`}
+  alt={appUser?.anonymousName || "Anonymous avatar"}
+  className="w-24 h-24 rounded-full border border-zinc-700 bg-black"
+/>
 
+                {/* Anonymous Name */}
                 <h2 className="mt-4 text-2xl font-semibold text-white">
-                  {user.fullName || user.firstName || "Anonymous Writer"}
+                  {loadingProfile
+                    ? "Loading..."
+                    : appUser?.anonymousName || "anonymous_writer"}
                 </h2>
 
+                {/* Bio */}
                 <p className="mt-4 text-sm italic text-zinc-300 leading-relaxed">
-                  Some stories stayed longer than people did.
+                  {loadingProfile
+                    ? "Loading your story..."
+                    : appUser?.bio?.trim()
+                    ? appUser.bio
+                    : "Some stories stayed longer than people did."}
                 </p>
               </div>
 
-              {/* Stats */}
+              {/* Social Stats */}
               <div className="mt-6 space-y-3">
                 <div className="rounded-xl border border-zinc-800 bg-zinc-900/70 p-4 flex items-center justify-between">
                   <span className="text-zinc-400 flex items-center gap-2">
@@ -164,6 +206,26 @@ function Page() {
 
                 <div className="rounded-xl border border-zinc-800 bg-zinc-900/70 p-4 flex items-center justify-between">
                   <span className="text-zinc-400 flex items-center gap-2">
+                    <Users size={16} />
+                    Followers
+                  </span>
+                  <span className="font-semibold text-white">
+                    {appUser?.followers?.length || 0}
+                  </span>
+                </div>
+
+                <div className="rounded-xl border border-zinc-800 bg-zinc-900/70 p-4 flex items-center justify-between">
+                  <span className="text-zinc-400 flex items-center gap-2">
+                    <UserPlus size={16} />
+                    Following
+                  </span>
+                  <span className="font-semibold text-white">
+                    {appUser?.following?.length || 0}
+                  </span>
+                </div>
+
+                <div className="rounded-xl border border-zinc-800 bg-zinc-900/70 p-4 flex items-center justify-between">
+                  <span className="text-zinc-400 flex items-center gap-2">
                     <Bookmark size={16} />
                     Saved Memories
                   </span>
@@ -171,9 +233,12 @@ function Page() {
                 </div>
               </div>
 
-              <Button className="cursor-target mt-6 w-full rounded-xl border-4-white hover:bg-gray-900 transition py-3 font-medium">
-                Edit Profile
-              </Button>
+             <Link
+  href="/edit-profile"
+  className="inline-flex items-center rounded-2xl border border-zinc-800 px-4 py-2 text-sm text-white hover:border-zinc-700 transition"
+>
+  Edit Profile
+</Link>
             </div>
 
             {/* RIGHT CONTENT */}
@@ -264,6 +329,7 @@ function Page() {
         </div>
       </div>
     </div>
+    </OnboardingGuard>
   );
 }
 
