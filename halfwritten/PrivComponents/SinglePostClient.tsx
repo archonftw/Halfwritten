@@ -1,7 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import SpotlightCard from '@/components/SpotlightCard'
+import SpotlightCard from "@/components/SpotlightCard";
+import ConfirmModal from "@/PrivComponents/ConfirmModal";
+import { useUser } from "@clerk/nextjs";
+import { useRouter } from "next/navigation";
+import toast from "react-hot-toast";
 
 type PostType = {
   _id: string;
@@ -18,10 +22,15 @@ type PostType = {
 };
 
 export default function SinglePostClient({ postId }: { postId: string }) {
+  const { user } = useUser();
+  const router = useRouter();
+
   const [post, setPost] = useState<PostType | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [showConfirm, setShowConfirm] = useState(false);
 
+  // Fetch post
   useEffect(() => {
     const fetchPost = async () => {
       try {
@@ -44,6 +53,31 @@ export default function SinglePostClient({ postId }: { postId: string }) {
 
     fetchPost();
   }, [postId]);
+
+  // Delete handler
+  const handleDelete = async () => {
+    if (!post) return;
+
+    try {
+      const res = await fetch(`/api/post/${post._id}`, {
+        method: "DELETE",
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        toast.error(data.message || "Failed to delete post");
+        return;
+      }
+
+      toast.success("Post deleted successfully!");
+      setTimeout(() => {
+        router.push("/post");
+      }, 1000); // wait 1s for toast
+    } catch (err) {
+      console.error(err);
+      toast.error("Something went wrong!");
+    }
+  };
 
   if (loading) {
     return (
@@ -82,55 +116,69 @@ export default function SinglePostClient({ postId }: { postId: string }) {
 
         <SpotlightCard spotlightColor="rgba(178, 61, 61, 0.58)">
           <article className="overflow-hidden rounded-3xl border border-red-500/15 bg-gradient-to-b from-zinc-950 to-black shadow-[0_0_50px_rgba(220,38,38,0.08)]">
-          <div className="h-1 w-full bg-gradient-to-r from-transparent via-red-600 to-transparent" />
+            <div className="h-1 w-full bg-gradient-to-r from-transparent via-red-600 to-transparent" />
 
-          <div className="p-6 sm:p-8 md:p-10">
-            <h1 className="mb-5 text-3xl font-bold leading-tight text-white sm:text-4xl md:text-5xl">
-              {post.title}
-            </h1>
+            <div className="p-6 sm:p-8 md:p-10">
+              <h1 className="mb-5 text-3xl font-bold leading-tight text-white sm:text-4xl md:text-5xl">
+                {post.title}
+              </h1>
 
-            <div className="mb-8 flex flex-wrap items-center justify-between gap-4 border-b border-zinc-900 pb-6">
-              <div className="flex items-center gap-4">
-                <img className="flex h-12 w-12 items-center justify-center rounded-full border border-red-500/20 bg-gradient-to-br from-red-700 to-zinc-900 text-lg font-bold text-white shadow-[0_0_20px_rgba(220,38,38,0.2)]" src={post.authorImage}>
-                  
-                </img>
-
-                <div>
-                  <p className="font-medium text-white">
-                    {post.authorName || "Unknown Author"}
-                  </p>
-                  <p className="text-sm text-zinc-500">
-                    {post.createdAt
-                      ? new Date(post.createdAt).toLocaleDateString()
-                      : "Recently posted"}
-                  </p>
+              <div className="mb-8 flex flex-wrap items-center justify-between gap-4 border-b border-zinc-900 pb-6">
+                <div className="flex items-center gap-4">
+                  <img
+                    className="flex h-12 w-12 items-center justify-center rounded-full border border-red-500/20 bg-gradient-to-br from-red-700 to-zinc-900 text-lg font-bold text-white shadow-[0_0_20px_rgba(220,38,38,0.2)]"
+                    src={post.authorImage}
+                    alt={post.authorName}
+                  />
+                  <div>
+                    <p className="font-medium text-white">{post.authorName || "Unknown Author"}</p>
+                    <p className="text-sm text-zinc-500">
+                      {post.createdAt ? new Date(post.createdAt).toLocaleDateString() : "Recently posted"}
+                    </p>
+                  </div>
                 </div>
               </div>
+
+              <div className="rounded-2xl border border-zinc-900 bg-zinc-950/70 p-5 sm:p-6">
+                <p className="whitespace-pre-wrap text-base leading-8 text-zinc-200 sm:text-lg">{post.content}</p>
+              </div>
+
+              <div className="mt-8 flex flex-wrap gap-3">
+                <button className="rounded-2xl border border-red-500/20 bg-red-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-red-500 active:scale-[0.98]">
+                  {post.likedBy.length}❤️ React
+                </button>
+                <button className="rounded-2xl border border-zinc-800 bg-zinc-950 px-5 py-3 text-sm font-semibold text-zinc-200 transition hover:border-red-500/20 hover:text-white active:scale-[0.98]">
+                  💬 Comment
+                </button>
+                <button className="rounded-2xl border border-zinc-800 bg-zinc-950 px-5 py-3 text-sm font-semibold text-zinc-200 transition hover:border-red-500/20 hover:text-white active:scale-[0.98]">
+                  🔖 Save
+                </button>
+
+                {user?.id === post.authorId && (
+                  <button
+                    onClick={() => setShowConfirm(true)}
+                    className="rounded-2xl border border-red-500/20 bg-red-700 px-5 py-3 text-sm font-semibold text-white transition hover:bg-red-600 active:scale-[0.98]"
+                  >
+                    🗑️ Delete
+                  </button>
+                )}
+              </div>
             </div>
-
-            <div className="rounded-2xl border border-zinc-900 bg-zinc-950/70 p-5 sm:p-6">
-              <p className="whitespace-pre-wrap text-base leading-8 text-zinc-200 sm:text-lg">
-                {post.content}
-              </p>
-            </div>
-
-            <div className="mt-8 flex flex-wrap gap-3">
-              <button className="rounded-2xl border border-red-500/20 bg-red-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-red-500 active:scale-[0.98]">
-                {post.likedBy.length}❤️ React
-              </button>
-
-              <button className="rounded-2xl border border-zinc-800 bg-zinc-950 px-5 py-3 text-sm font-semibold text-zinc-200 transition hover:border-red-500/20 hover:text-white active:scale-[0.98]">
-                💬 Comment
-              </button>
-
-              <button className="rounded-2xl border border-zinc-800 bg-zinc-950 px-5 py-3 text-sm font-semibold text-zinc-200 transition hover:border-red-500/20 hover:text-white active:scale-[0.98]">
-                🔖 Save
-              </button>
-            </div>
-          </div>
-        </article>
+          </article>
         </SpotlightCard>
       </section>
+
+      {/* Custom confirmation modal */}
+      {showConfirm && (
+        <ConfirmModal
+          message="Are you sure you want to delete this post?"
+          onCancel={() => setShowConfirm(false)}
+          onConfirm={() => {
+            setShowConfirm(false);
+            handleDelete();
+          }}
+        />
+      )}
     </main>
   );
 }

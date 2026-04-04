@@ -141,7 +141,10 @@ export default function ShowPostsClient({ initialPosts }: Props) {
                   </p>
 
                   <button
-                    onClick={() => handleLike(post._id)}
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      handleLike(post._id)
+                    }}
                     disabled={loadingId === post._id}
                     className={`px-4 py-2 rounded-xl transition ${
                       post.isLiked
