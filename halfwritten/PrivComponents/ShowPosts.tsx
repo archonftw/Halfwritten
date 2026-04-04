@@ -6,6 +6,7 @@ import { formatDistanceToNow } from "date-fns";
 import GradientText from "@/components/GradientText";
 import { loveFont } from "@/lib/fonts";
 import Link from "next/link";
+import TargetCursor from "@/components/TargetCursor";
 
 type PostType = {
   _id: string;
@@ -79,89 +80,88 @@ export default function ShowPostsClient({ initialPosts }: Props) {
   };
 
   return (
-    <div>
-      <div className="p-4 bg-black sticky top-0 z-10" >
-        <h1 className="text-2xl font-bold ml-4">Stories</h1>
-
-      <input
-        type="text"
-        placeholder="Search posts..."
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-        className="border p-2 m-4 rounded-2xl text-white w-1/2 bg-transparent"
-      />
+    <div className="min-h-screen bg-black text-white">
+      <TargetCursor/>
+      {/* Sticky Header */}
+      <div className="p-3 sm:p-4 bg-black sticky top-0 z-10 border-b border-white/5">
+        <h1 className={`text-xl sm:text-2xl font-bold ml-1 sm:ml-4 ${loveFont.className}`}>
+          Stories
+        </h1>
+        <input
+          type="text"
+          placeholder="Search posts..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="border border-white/20 cursor-target p-2 mt-2 sm:m-4 rounded-2xl text-white w-full sm:w-1/2 bg-transparent placeholder:text-white/30 focus:outline-none focus:border-pink-400/50 transition-colors text-sm sm:text-base"
+        />
       </div>
 
+      {/* Posts List */}
       {filteredPosts.length === 0 ? (
-        <p className="ml-4">No posts found.</p>
+        <p className="ml-4 mt-6 text-gray-400 text-sm">No posts found.</p>
       ) : (
-        <ul>
+        <ul className="pb-6 cursor-target">
           {filteredPosts.map((post) => (
             <li key={post._id}>
-                <Link href={`/post/${post._id}`}>
-              <BorderGlow
-                edgeSensitivity={30}
-                glowColor="40 80 80"
-                backgroundColor="rgba(20, 10, 6, 0.8)"
-                borderRadius={10}
-                glowRadius={60}
-                glowIntensity={1}
-                coneSpread={30}
-                animated={false}
-                colors={["#c084fc", "#f472b6", "#38bdf8"]}
-                className="m-5"
-              >
-                <div className="p-6 space-y-3">
-                  <div className="flex items-center gap-3">
-                    <img
-                      src={post.authorImage}
-                      alt={post.authorName}
-                      className="w-12 h-12 rounded-full object-cover"
-                    />
-                    <h1 className="font-semibold text-lg">{post.authorName}</h1>
+              <Link href={`/post/${post._id}`}>
+                  <div className="p-4 sm:p-6 outline hover:bg-zinc-900 space-y-3">
+                    {/* Author Row */}
+                    <div className="flex items-center gap-2 sm:gap-3">
+                      <img
+                        src={post.authorImage}
+                        alt={post.authorName}
+                        className="w-9 h-9 sm:w-12 sm:h-12 rounded-full object-cover flex-shrink-0"
+                      />
+                      <h1 className="font-semibold text-base sm:text-lg leading-tight">
+                        {post.authorName}
+                      </h1>
+                    </div>
+
+                    {/* Title */}
+                    <GradientText
+                      colors={["#5227FF", "#FF9FFC", "#B19EEF"]}
+                      animationSpeed={3}
+                      showBorder={false}
+                      className={`ml-0 text-lg sm:text-xl ${loveFont.className}`}
+                    >
+                      {post.title}
+                    </GradientText>
+
+                    {/* Content */}
+                    <p className="text-gray-300 text-sm sm:text-base leading-relaxed line-clamp-3">
+                      {post.content}
+                    </p>
+
+                    {/* Footer Row */}
+                    <div className="flex justify-between items-center pt-1 gap-2">
+                      <p className="text-xs sm:text-sm text-gray-400 flex-shrink-0">
+                        {formatDistanceToNow(new Date(post.createdAt), {
+                          addSuffix: true,
+                        })}
+                      </p>
+
+                      <button
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          handleLike(post._id);
+                        }}
+                        disabled={loadingId === post._id}
+                        className={`px-3 sm:px-4  cursor-target py-1.5 sm:py-2 rounded-xl text-xs sm:text-sm font-medium transition whitespace-nowrap ${
+                          post.isLiked
+                            ? "bg-red-500 hover:bg-red-600"
+                            : "bg-pink-500 hover:bg-pink-600"
+                        } disabled:opacity-70`}
+                      >
+                        {loadingId === post._id
+                          ? "..."
+                          : post.isLiked
+                          ? `❤️ Liked (${post.likes})`
+                          : `🤍 Like (${post.likes})`}
+                      </button>
+                    </div>
                   </div>
-
-                  <GradientText
-                            colors={["#5227FF","#FF9FFC","#B19EEF"]}
-                            animationSpeed={3}
-                            showBorder={false}
-                            className={`ml-0 text-xl ${loveFont.className}`}
-                          >
-                            {post.title}
-                          </GradientText>
-                  <p className={`text-gray-300 `}>
-                    {post.content}
-                  </p>
-
-                  <div className="flex justify-between items-center">
-                    <p className="text-sm text-gray-400">
-                    {formatDistanceToNow(new Date(post.createdAt), {
-                      addSuffix: true,
-                    })}
-                  </p>
-
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      handleLike(post._id)
-                    }}
-                    disabled={loadingId === post._id}
-                    className={`px-4 py-2 rounded-xl transition ${
-                      post.isLiked
-                        ? "bg-red-500 hover:bg-red-600"
-                        : "bg-pink-500 hover:bg-pink-600"
-                    } disabled:opacity-70`}
-                  >
-                    {loadingId === post._id
-                      ? "..."
-                      : post.isLiked
-                      ? `❤️ Liked (${post.likes})`
-                      : `🤍 Like (${post.likes})`}
-                  </button>
-                  </div>
-                </div>
-              </BorderGlow>
-            </Link>
+              </Link>
             </li>
           ))}
         </ul>

@@ -77,8 +77,8 @@ export default function Form() {
       <form onSubmit={handleSubmit}>
         <h1 className="mb-4 text-xl font-semibold">Tell your story</h1>
 
-        <div className="flex flex-col gap-4">
-          <div>
+        <div className="flex flex-col  gap-4">
+          <div className="cursor-target">
             <Input
               type="text"
               value={title}
@@ -89,7 +89,7 @@ export default function Form() {
             />
           </div>
 
-          <div className="w-full h-full">
+          <div className="w-full cursor-target h-full">
             <Textarea
               name="content"
               value={content}
@@ -104,7 +104,7 @@ export default function Form() {
         <Button
           type="submit"
           disabled={loading}
-          className=" mt-4 px-6 py-3 rounded-xl bg-black border border-red-400 text-white-300 font-semibold 
+          className=" mt-4 px-6 py-3 rounded-xl cursor-target bg-black border border-red-400 text-white-300 font-semibold 
 shadow-[0_0_10px_rgba(34,211,238,0.5),0_0_20px_rgba(34,211,238,0.3)]
 hover:shadow-[0_0_20px_rgba(34,211,238,0.9),0_0_40px_rgba(34,211,238,0.6),0_0_60px_rgba(34,211,238,0.4)]
 hover:scale-105 transition-all duration-300">
