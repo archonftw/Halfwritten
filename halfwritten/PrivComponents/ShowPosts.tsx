@@ -120,7 +120,8 @@ export default function ShowPostsClient({ initialPosts }: Props) {
   onClick={(e) => {
     e.preventDefault();
     e.stopPropagation();
-    router.push(`/u/${post.authorId}`);
+    console.log("Button clicked, goin to profile with id:",post.authorId)
+    router.push(`/profile/${post.authorId}`);
   }}
 >
   @{post.authorName || "anonymous"}

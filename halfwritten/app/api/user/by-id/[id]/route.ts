@@ -13,15 +13,16 @@ export async function GET(req: Request, { params }: Params) {
     await connectDB();
 
     const { userId } = await auth();
+    const {id} = await params;
 
-    if (!mongoose.Types.ObjectId.isValid(params.id)) {
+    if (!mongoose.Types.ObjectId.isValid(id)) {
       return NextResponse.json(
         { success: false, message: "Invalid user ID." },
         { status: 400 }
       );
     }
 
-    const targetUser = await User.findById(params.id);
+    const targetUser = await User.findById(id);
     console.log(targetUser)
 
     if (!targetUser) {

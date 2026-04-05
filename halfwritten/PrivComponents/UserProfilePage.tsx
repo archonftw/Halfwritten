@@ -22,17 +22,17 @@ type AppUserType = {
 };
 
 export default function UserProfilePage({ userId }: { userId: string }) {
-  const [profileUser, setProfileUser] = useState<AppUserType | null>(null);
   const [posts, setPosts] = useState<PostType[]>([]);
-  const [loadingProfile, setLoadingProfile] = useState(true);
+  const [profileUser, setProfileUser] = useState<AppUserType | null>(null);
   const [loadingPosts, setLoadingPosts] = useState(true);
+  const [loadingProfile, setLoadingProfile] = useState(true);
   const [activeTab, setActiveTab] = useState<"chapters" | "saved">("chapters");
   const [isFollowing, setIsFollowing] = useState(false);
   const [isOwnProfile, setIsOwnProfile] = useState(false);
   const [followLoading, setFollowLoading] = useState(false);
 
   useEffect(() => {
-    const fetchProfile = async () => {
+    const fetchProfileData = async () => {
       try {
         setLoadingProfile(true);
 
@@ -44,22 +44,26 @@ export default function UserProfilePage({ userId }: { userId: string }) {
         if (!res.ok) {
           toast.error(data.message || "Failed to load profile.");
           setProfileUser(null);
+          setIsFollowing(false);
+          setIsOwnProfile(false);
           return;
         }
 
         setProfileUser(data.user);
-        setIsFollowing(!!data.isFollowing);
-        setIsOwnProfile(!!data.isOwnProfile);
+        setIsFollowing(Boolean(data.isFollowing));
+        setIsOwnProfile(Boolean(data.isOwnProfile));
       } catch (error) {
-        console.error(error);
+        console.error("Failed to fetch public profile:", error);
         toast.error("Something went wrong.");
         setProfileUser(null);
+        setIsFollowing(false);
+        setIsOwnProfile(false);
       } finally {
         setLoadingProfile(false);
       }
     };
 
-    const fetchPosts = async () => {
+    const fetchUserPosts = async () => {
       try {
         setLoadingPosts(true);
 
@@ -68,19 +72,22 @@ export default function UserProfilePage({ userId }: { userId: string }) {
         });
         const data = await res.json();
 
-        if (data.success) {
+        if (res.ok && data.success) {
           setPosts(data.posts || []);
+        } else {
+          setPosts([]);
         }
       } catch (error) {
-        console.error(error);
+        console.error("Failed to fetch user posts:", error);
+        setPosts([]);
       } finally {
         setLoadingPosts(false);
       }
     };
 
     if (userId) {
-      fetchProfile();
-      fetchPosts();
+      fetchProfileData();
+      fetchUserPosts();
     }
   }, [userId]);
 
@@ -89,7 +96,7 @@ export default function UserProfilePage({ userId }: { userId: string }) {
   }, [posts]);
 
   const handleFollowToggle = async () => {
-    if (!profileUser) return;
+    if (!profileUser?._id) return;
 
     try {
       setFollowLoading(true);
@@ -126,7 +133,7 @@ export default function UserProfilePage({ userId }: { userId: string }) {
           : prev
       );
     } catch (error) {
-      console.error(error);
+      console.error("Follow toggle error:", error);
       toast.error("Something went wrong.");
     } finally {
       setFollowLoading(false);
