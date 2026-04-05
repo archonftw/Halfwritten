@@ -13,7 +13,7 @@ export async function GET(req: Request, { params }: Params) {
     await connectDB();
 
     const { userId } = await auth();
-    const {id} = await params;
+    const { id } = params;
 
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return NextResponse.json(
@@ -22,8 +22,9 @@ export async function GET(req: Request, { params }: Params) {
       );
     }
 
-    const targetUser = await User.findById(id);
-    console.log(targetUser)
+    const targetUser = await User.findById(id)
+      .populate("followers", "anonymousName bio avatarSeed")
+      .populate("following", "anonymousName bio avatarSeed");
 
     if (!targetUser) {
       return NextResponse.json(
@@ -44,7 +45,8 @@ export async function GET(req: Request, { params }: Params) {
 
         isFollowing =
           currentUser.following?.some(
-            (id: any) => id.toString() === targetUser._id.toString()
+            (followedId: any) =>
+              followedId.toString() === targetUser._id.toString()
           ) || false;
       }
     }
@@ -61,6 +63,28 @@ export async function GET(req: Request, { params }: Params) {
           "halfwritten",
         followersCount: targetUser.followers?.length || 0,
         followingCount: targetUser.following?.length || 0,
+
+        followers:
+          targetUser.followers?.map((follower: any) => ({
+            _id: follower._id,
+            anonymousName: follower.anonymousName,
+            bio: follower.bio || "",
+            avatarSeed:
+              follower.avatarSeed ||
+              follower.anonymousName ||
+              "halfwritten",
+          })) || [],
+
+        following:
+          targetUser.following?.map((followedUser: any) => ({
+            _id: followedUser._id,
+            anonymousName: followedUser.anonymousName,
+            bio: followedUser.bio || "",
+            avatarSeed:
+              followedUser.avatarSeed ||
+              followedUser.anonymousName ||
+              "halfwritten",
+          })) || [],
       },
       isFollowing,
       isOwnProfile,

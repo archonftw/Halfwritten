@@ -23,13 +23,30 @@ type AppUserType = {
   followingCount?: number;
 };
 
+type NetworkUserType = {
+  _id: string;
+  anonymousName: string;
+  avatarSeed?: string;
+  bio?: string;
+};
+
 type ProfileViewProps = {
   profileUser: AppUserType | null;
   posts: PostType[];
   loadingProfile: boolean;
   loadingPosts: boolean;
-  activeTab: "chapters" | "saved";
-  setActiveTab: React.Dispatch<React.SetStateAction<"chapters" | "saved">>;
+  activeTab: "chapters" | "saved" | "network";
+  setActiveTab: React.Dispatch<
+    React.SetStateAction<"chapters" | "saved" | "network">
+  >;
+  networkTab: "followers" | "following";
+  setNetworkTab: React.Dispatch<
+    React.SetStateAction<"followers" | "following">
+  >;
+  followers?: NetworkUserType[];
+  followingUsers?: NetworkUserType[];
+  loadingFollowers?: boolean;
+  loadingFollowing?: boolean;
   totalLikes: number;
   isOwnProfile: boolean;
   isFollowing?: boolean;
@@ -44,12 +61,95 @@ export default function ProfileView({
   loadingPosts,
   activeTab,
   setActiveTab,
+  networkTab,
+  setNetworkTab,
+  followers = [],
+  followingUsers = [],
+  loadingFollowers = false,
+  loadingFollowing = false,
   totalLikes,
   isOwnProfile,
   isFollowing = false,
   followLoading = false,
   onFollowToggle,
 }: ProfileViewProps) {
+  const profileSeed =
+    profileUser?.avatarSeed || profileUser?.anonymousName || "halfwritten";
+
+  console.log(followingUsers)
+
+  const statButtonClass =
+    "w-full rounded-xl border border-zinc-800 bg-zinc-900/70 p-4 flex items-center justify-between hover:border-purple-500/40 transition text-left";
+
+  const tabClass = (isActive: boolean) =>
+    `px-4 py-2 rounded-xl text-sm transition ${
+      isActive
+        ? "bg-purple-600 text-white"
+        : "bg-zinc-900 text-zinc-400 hover:text-white"
+    }`;
+
+  const renderEmptyState = (title: string, subtitle: string) => (
+    <div className="rounded-2xl border border-dashed border-zinc-700 p-10 text-center text-zinc-400">
+      <p className="text-lg">{title}</p>
+      <p className="mt-2 text-sm">{subtitle}</p>
+    </div>
+  );
+
+  const renderNetworkList = (
+    users: NetworkUserType[],
+    loading: boolean,
+    emptyTitle: string,
+    emptySubtitle: string,
+    fallbackBio: string
+  ) => {
+    if (loading) {
+      return (
+        <div className="text-zinc-400 text-center py-10">
+          Loading {networkTab}...
+        </div>
+      );
+    }
+
+    if (users.length === 0) {
+      return renderEmptyState(emptyTitle, emptySubtitle);
+    }
+
+    return users.map((user) => {
+      const seed = user.avatarSeed || user.anonymousName || "halfwritten";
+
+      return (
+        <div
+          key={user._id}
+          className="rounded-2xl border border-zinc-800 bg-zinc-900/50 p-4 flex items-center justify-between gap-4 hover:border-purple-500/30 transition"
+        >
+          <div className="flex items-center gap-4 min-w-0">
+            <img
+              src={`https://api.dicebear.com/7.x/thumbs/svg?seed=${seed}`}
+              alt={user.anonymousName}
+              className="w-12 h-12 rounded-full border border-zinc-700 bg-black shrink-0"
+            />
+
+            <div className="min-w-0">
+              <p className="text-white font-medium truncate">
+                {user.anonymousName}
+              </p>
+              <p className="text-sm text-zinc-400 truncate">
+                {user.bio?.trim() || fallbackBio}
+              </p>
+            </div>
+          </div>
+
+          <Link
+            href={`/profile/${user._id}`}
+            className="shrink-0 rounded-xl border border-zinc-700 px-3 py-2 text-sm text-white hover:border-zinc-500 transition"
+          >
+            View
+          </Link>
+        </div>
+      );
+    });
+  };
+
   return (
     <div className="min-h-screen bg-black text-white">
       <TargetCursor />
@@ -71,11 +171,7 @@ export default function ProfileView({
             <div className="border border-zinc-800 rounded-2xl bg-zinc-950/60 backdrop-blur-sm p-5 h-fit lg:h-full overflow-y-auto">
               <div className="flex flex-col items-center text-center">
                 <img
-                  src={`https://api.dicebear.com/7.x/thumbs/svg?seed=${
-                    profileUser?.avatarSeed ||
-                    profileUser?.anonymousName ||
-                    "halfwritten"
-                  }`}
+                  src={`https://api.dicebear.com/7.x/thumbs/svg?seed=${profileSeed}`}
                   alt={profileUser?.anonymousName || "Anonymous avatar"}
                   className="w-24 h-24 rounded-full border border-zinc-700 bg-black"
                 />
@@ -96,13 +192,19 @@ export default function ProfileView({
               </div>
 
               <div className="mt-6 space-y-3">
-                <div className="rounded-xl border border-zinc-800 bg-zinc-900/70 p-4 flex items-center justify-between">
+                <button
+                  type="button"
+                  onClick={() => setActiveTab("chapters")}
+                  className={statButtonClass}
+                >
                   <span className="text-zinc-400 flex items-center gap-2">
                     <FileText size={16} />
                     Chapters
                   </span>
-                  <span className="font-semibold text-white">{posts.length}</span>
-                </div>
+                  <span className="font-semibold text-white">
+                    {posts.length}
+                  </span>
+                </button>
 
                 <div className="rounded-xl border border-zinc-800 bg-zinc-900/70 p-4 flex items-center justify-between">
                   <span className="text-zinc-400 flex items-center gap-2">
@@ -112,7 +214,14 @@ export default function ProfileView({
                   <span className="font-semibold text-white">{totalLikes}</span>
                 </div>
 
-                <div className="rounded-xl border border-zinc-800 bg-zinc-900/70 p-4 flex items-center justify-between">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setActiveTab("network");
+                    setNetworkTab("followers");
+                  }}
+                  className={statButtonClass}
+                >
                   <span className="text-zinc-400 flex items-center gap-2">
                     <Users size={16} />
                     Followers
@@ -120,9 +229,16 @@ export default function ProfileView({
                   <span className="font-semibold text-white">
                     {profileUser?.followersCount || 0}
                   </span>
-                </div>
+                </button>
 
-                <div className="rounded-xl border border-zinc-800 bg-zinc-900/70 p-4 flex items-center justify-between">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setActiveTab("network");
+                    setNetworkTab("following");
+                  }}
+                  className={statButtonClass}
+                >
                   <span className="text-zinc-400 flex items-center gap-2">
                     <UserPlus size={16} />
                     Following
@@ -130,16 +246,20 @@ export default function ProfileView({
                   <span className="font-semibold text-white">
                     {profileUser?.followingCount || 0}
                   </span>
-                </div>
+                </button>
 
                 {isOwnProfile && (
-                  <div className="rounded-xl border border-zinc-800 bg-zinc-900/70 p-4 flex items-center justify-between">
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab("saved")}
+                    className={statButtonClass}
+                  >
                     <span className="text-zinc-400 flex items-center gap-2">
                       <Bookmark size={16} />
                       Saved Memories
                     </span>
                     <span className="font-semibold text-white">0</span>
-                  </div>
+                  </button>
                 )}
               </div>
 
@@ -176,11 +296,7 @@ export default function ProfileView({
               <div className="flex gap-3 border-b border-zinc-800 pb-4 shrink-0">
                 <button
                   onClick={() => setActiveTab("chapters")}
-                  className={`px-4 py-2 rounded-xl text-sm transition ${
-                    activeTab === "chapters"
-                      ? "bg-purple-600 text-white"
-                      : "bg-zinc-900 text-zinc-400 hover:text-white"
-                  }`}
+                  className={tabClass(activeTab === "chapters")}
                 >
                   Chapters
                 </button>
@@ -188,15 +304,18 @@ export default function ProfileView({
                 {isOwnProfile && (
                   <button
                     onClick={() => setActiveTab("saved")}
-                    className={`px-4 py-2 rounded-xl text-sm transition ${
-                      activeTab === "saved"
-                        ? "bg-purple-600 text-white"
-                        : "bg-zinc-900 text-zinc-400 hover:text-white"
-                    }`}
+                    className={tabClass(activeTab === "saved")}
                   >
                     Saved
                   </button>
                 )}
+
+                <button
+                  onClick={() => setActiveTab("network")}
+                  className={tabClass(activeTab === "network")}
+                >
+                  Network
+                </button>
               </div>
 
               <div className="mt-5 flex-1 overflow-y-auto pr-1 space-y-4">
@@ -207,12 +326,10 @@ export default function ProfileView({
                         Loading chapters...
                       </div>
                     ) : posts.length === 0 ? (
-                      <div className="rounded-2xl border border-dashed border-zinc-700 p-10 text-center text-zinc-400">
-                        <p className="text-lg">No chapters yet.</p>
-                        <p className="mt-2 text-sm">
-                          Some stories are still waiting to be told.
-                        </p>
-                      </div>
+                      renderEmptyState(
+                        "No chapters yet.",
+                        "Some stories are still waiting to be told."
+                      )
                     ) : (
                       posts.map((post) => (
                         <div
@@ -244,12 +361,48 @@ export default function ProfileView({
                   </>
                 )}
 
-                {isOwnProfile && activeTab === "saved" && (
-                  <div className="rounded-2xl border border-dashed border-zinc-700 p-10 text-center text-zinc-400">
-                    <p className="text-lg">No saved memories yet.</p>
-                    <p className="mt-2 text-sm">
-                      The stories you keep close will appear here.
-                    </p>
+                {isOwnProfile &&
+                  activeTab === "saved" &&
+                  renderEmptyState(
+                    "No saved memories yet.",
+                    "The stories you keep close will appear here."
+                  )}
+
+                {activeTab === "network" && (
+                  <div className="space-y-4">
+                    <div className="flex gap-3 border-b border-zinc-800 pb-4">
+                      <button
+                        onClick={() => setNetworkTab("followers")}
+                        className={tabClass(networkTab === "followers")}
+                      >
+                        Followers
+                      </button>
+
+                      <button
+                        onClick={() => setNetworkTab("following")}
+                        className={tabClass(networkTab === "following")}
+                      >
+                        Following
+                      </button>
+                    </div>
+
+                    {networkTab === "followers" &&
+                      renderNetworkList(
+                        followers,
+                        loadingFollowers,
+                        "No followers yet.",
+                        "When people start loving the words here, they’ll appear here.",
+                        "A quiet reader in the shadows."
+                      )}
+
+                    {networkTab === "following" &&
+                      renderNetworkList(
+                        followingUsers,
+                        loadingFollowing,
+                        "Not following anyone yet.",
+                        "Writers you follow will show up here.",
+                        "Following their unfinished thoughts."
+                      )}
                   </div>
                 )}
               </div>

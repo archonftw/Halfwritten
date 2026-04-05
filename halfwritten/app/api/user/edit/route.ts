@@ -2,6 +2,7 @@ import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 import connectDB from "@/lib/db";
 import User from "@/models/user";
+import Post from "@/models/post";
 
 const USERNAME_REGEX = /^[a-z0-9_]{3,20}$/;
 
@@ -39,12 +40,8 @@ export async function PATCH(req: Request) {
     }
 
     const body = await req.json();
-
-    const anonymousName = String(body.anonymousName || "")
-      .trim()
-      .toLowerCase();
-
-    const bio = String(body.bio || "").trim().slice(0, 160);
+    const anonymousName = body.anonymousName?.trim().toLowerCase();
+    const bio = body.bio?.trim() || "";
 
     if (!anonymousName) {
       return NextResponse.json(
@@ -83,33 +80,50 @@ export async function PATCH(req: Request) {
       );
     }
 
-    const oldName = existingUser.anonymousName;
-    const usernameChanged = oldName !== anonymousName;
+    const usernameChanged = existingUser.anonymousName !== anonymousName;
 
     existingUser.anonymousName = anonymousName;
     existingUser.bio = bio;
 
     if (usernameChanged) {
       existingUser.avatarSeed = anonymousName;
-      existingUser.usernameUpdatedAt = new Date();
     }
 
     await existingUser.save();
 
+    const updatedAuthorImage = `https://api.dicebear.com/7.x/thumbs/svg?seed=${encodeURIComponent(
+      existingUser.avatarSeed || existingUser.anonymousName
+    )}`;
+
+    // Update all posts by this user
+    await Post.updateMany(
+      { authorId: userId },
+      {
+        $set: {
+          authorName: existingUser.anonymousName,
+          authorImage: updatedAuthorImage,
+        },
+      }
+    );
+
+    // Update all comments written by this user
+    await Post.updateMany(
+      { "comments.userId": userId },
+      {
+        $set: {
+          "comments.$[elem].username": existingUser.anonymousName,
+          "comments.$[elem].userImage": updatedAuthorImage,
+        },
+      },
+      {
+        arrayFilters: [{ "elem.userId": userId }],
+      }
+    );
+
     return NextResponse.json({
       success: true,
       message: "Profile updated successfully.",
-      user: {
-        _id: existingUser._id,
-        clerkId: existingUser.clerkId,
-        anonymousName: existingUser.anonymousName,
-        bio: existingUser.bio,
-        avatarSeed: existingUser.avatarSeed,
-        followers: existingUser.followers,
-        following: existingUser.following,
-        isOnboarded: existingUser.isOnboarded,
-        usernameUpdatedAt: existingUser.usernameUpdatedAt,
-      },
+      user: existingUser,
     });
   } catch (error) {
     console.error("Edit profile error:", error);

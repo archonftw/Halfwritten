@@ -22,14 +22,33 @@ type AppUserType = {
   followingCount?: number;
 };
 
+type NetworkUserType = {
+  _id: string;
+  anonymousName: string;
+  avatarSeed?: string;
+  bio?: string;
+};
+
 export default function Page() {
   const { user, isLoaded } = useUser();
 
   const [posts, setPosts] = useState<PostType[]>([]);
   const [appUser, setAppUser] = useState<AppUserType | null>(null);
+
+  const [followers, setFollowers] = useState<NetworkUserType[]>([]);
+  const [followingUsers, setFollowingUsers] = useState<NetworkUserType[]>([]);
+
   const [loadingPosts, setLoadingPosts] = useState(true);
   const [loadingProfile, setLoadingProfile] = useState(true);
-  const [activeTab, setActiveTab] = useState<"chapters" | "saved">("chapters");
+  const [loadingFollowers, setLoadingFollowers] = useState(false);
+  const [loadingFollowing, setLoadingFollowing] = useState(false);
+
+  const [activeTab, setActiveTab] = useState<"chapters" | "saved" | "network">(
+    "chapters"
+  );
+  const [networkTab, setNetworkTab] = useState<"followers" | "following">(
+    "followers"
+  );
 
   useEffect(() => {
     const fetchProfileData = async () => {
@@ -60,13 +79,49 @@ export default function Page() {
       }
     };
 
+    // temporary placeholders until backend APIs are ready
+    const fetchFollowers = async () => {
+      try {
+        setLoadingFollowers(true);
+
+        // replace this with your real API later
+        // const res = await fetch("/api/user/followers");
+        // const data = await res.json();
+        // if (data.success) setFollowers(data.followers || []);
+
+        setFollowers([]);
+      } finally {
+        setLoadingFollowers(false);
+      }
+    };
+
+    const fetchFollowing = async () => {
+      try {
+        setLoadingFollowing(true);
+
+        // replace this with your real API later
+        // const res = await fetch("/api/user/following");
+        // const data = await res.json();
+        // if (data.success) setFollowingUsers(data.following || []);
+
+        setFollowingUsers([]);
+      } finally {
+        setLoadingFollowing(false);
+      }
+    };
+
     if (isLoaded && user) {
       fetchProfileData();
       fetchMyPosts();
+      fetchFollowers();
+      fetchFollowing();
     } else if (isLoaded && !user) {
       setLoadingPosts(false);
       setLoadingProfile(false);
+      setLoadingFollowers(false);
+      setLoadingFollowing(false);
     }
+    console.log(followingUsers)
   }, [isLoaded, user]);
 
   const totalLikes = useMemo(() => {
@@ -82,6 +137,12 @@ export default function Page() {
         loadingPosts={loadingPosts}
         activeTab={activeTab}
         setActiveTab={setActiveTab}
+        networkTab={networkTab}
+        setNetworkTab={setNetworkTab}
+        followers={followers}
+        followingUsers={followingUsers}
+        loadingFollowers={loadingFollowers}
+        loadingFollowing={loadingFollowing}
         totalLikes={totalLikes}
         isOwnProfile={true}
       />
