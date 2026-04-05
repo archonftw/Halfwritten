@@ -39,8 +39,12 @@ export async function PATCH(req: Request) {
     }
 
     const body = await req.json();
-    const anonymousName = body.anonymousName?.trim().toLowerCase();
-    const bio = body.bio?.trim() || "";
+
+    const anonymousName = String(body.anonymousName || "")
+      .trim()
+      .toLowerCase();
+
+    const bio = String(body.bio || "").trim().slice(0, 160);
 
     if (!anonymousName) {
       return NextResponse.json(
@@ -79,14 +83,15 @@ export async function PATCH(req: Request) {
       );
     }
 
-    const usernameChanged = existingUser.anonymousName !== anonymousName;
+    const oldName = existingUser.anonymousName;
+    const usernameChanged = oldName !== anonymousName;
 
     existingUser.anonymousName = anonymousName;
     existingUser.bio = bio;
 
-    // Optional: if username changes, keep avatar synced
     if (usernameChanged) {
       existingUser.avatarSeed = anonymousName;
+      existingUser.usernameUpdatedAt = new Date();
     }
 
     await existingUser.save();
@@ -94,7 +99,17 @@ export async function PATCH(req: Request) {
     return NextResponse.json({
       success: true,
       message: "Profile updated successfully.",
-      user: existingUser,
+      user: {
+        _id: existingUser._id,
+        clerkId: existingUser.clerkId,
+        anonymousName: existingUser.anonymousName,
+        bio: existingUser.bio,
+        avatarSeed: existingUser.avatarSeed,
+        followers: existingUser.followers,
+        following: existingUser.following,
+        isOnboarded: existingUser.isOnboarded,
+        usernameUpdatedAt: existingUser.usernameUpdatedAt,
+      },
     });
   } catch (error) {
     console.error("Edit profile error:", error);

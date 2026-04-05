@@ -25,9 +25,22 @@ export async function GET() {
       );
     }
 
+    // Backfill avatar if old user
+    if (!user.avatarSeed) {
+      user.avatarSeed = user.anonymousName || "halfwritten";
+      await user.save();
+    }
+
     return NextResponse.json({
       success: true,
-      user,
+      user: {
+        _id: user._id,
+        anonymousName: user.anonymousName,
+        bio: user.bio,
+        avatarSeed: user.avatarSeed,
+        followersCount: user.followers?.length || 0,
+        followingCount: user.following?.length || 0,
+      },
     });
   } catch (error) {
     console.error("Get current user error:", error);

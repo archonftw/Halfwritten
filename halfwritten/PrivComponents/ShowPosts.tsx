@@ -7,6 +7,7 @@ import GradientText from "@/components/GradientText";
 import { loveFont } from "@/lib/fonts";
 import Link from "next/link";
 import TargetCursor from "@/components/TargetCursor";
+import { useRouter } from "next/navigation";
 
 type PostType = {
   _id: string;
@@ -27,6 +28,7 @@ interface Props {
 }
 
 export default function ShowPostsClient({ initialPosts }: Props) {
+  const router = useRouter();
   const [posts, setPosts] = useState<PostType[]>(initialPosts);
   const [search, setSearch] = useState("");
   const [loadingId, setLoadingId] = useState<string | null>(null);
@@ -112,9 +114,17 @@ export default function ShowPostsClient({ initialPosts }: Props) {
                         alt={post.authorName}
                         className="w-9 h-9 sm:w-12 sm:h-12 rounded-full object-cover flex-shrink-0"
                       />
-                      <h1 className="font-semibold text-base sm:text-lg leading-tight">
-                        {post.authorName}
-                      </h1>
+                      <button
+  type="button"
+  className="cursor-pointer font-semibold text-base sm:text-lg leading-tight text-zinc-400 hover:text-white transition px-1 rounded"
+  onClick={(e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    router.push(`/u/${post.authorId}`);
+  }}
+>
+  @{post.authorName || "anonymous"}
+</button>
                     </div>
 
                     {/* Title */}

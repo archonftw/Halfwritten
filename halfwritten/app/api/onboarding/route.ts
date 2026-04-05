@@ -39,8 +39,12 @@ export async function POST(req: Request) {
     }
 
     const body = await req.json();
-    const anonymousName = body.anonymousName?.trim().toLowerCase();
-    const bio = body.bio?.trim() || "";
+
+    const anonymousName = String(body.anonymousName || "")
+      .trim()
+      .toLowerCase();
+
+    const bio = String(body.bio || "").trim().slice(0, 160);
 
     if (!anonymousName) {
       return NextResponse.json(
@@ -83,12 +87,24 @@ export async function POST(req: Request) {
       avatarSeed: anonymousName,
       followers: [],
       following: [],
+      isOnboarded: true,
+      usernameUpdatedAt: null,
     });
 
     return NextResponse.json({
       success: true,
       message: "Onboarding complete.",
-      user,
+      user: {
+        _id: user._id,
+        clerkId: user.clerkId,
+        anonymousName: user.anonymousName,
+        bio: user.bio,
+        avatarSeed: user.avatarSeed,
+        followers: user.followers,
+        following: user.following,
+        isOnboarded: user.isOnboarded,
+        usernameUpdatedAt: user.usernameUpdatedAt,
+      },
     });
   } catch (error) {
     console.error("Onboarding error:", error);

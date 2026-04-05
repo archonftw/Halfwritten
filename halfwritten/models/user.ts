@@ -8,7 +8,6 @@ const userSchema = new Schema(
       unique: true,
     },
 
-    // Public anonymous identity
     anonymousName: {
       type: String,
       required: true,
@@ -19,37 +18,40 @@ const userSchema = new Schema(
       maxlength: 20,
     },
 
-    // Optional public bio
     bio: {
       type: String,
       default: "",
+      trim: true,
       maxlength: 120,
     },
 
-    // For avatar generators later (DiceBear, etc.)
     avatarSeed: {
       type: String,
       default: "",
     },
 
-    // Social graph
     followers: [
-  {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "User",
-  },
-],
-following: [
-  {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "User",
-  },
-],
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+      },
+    ],
 
-    // Optional: for future username change limits
+    following: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+      },
+    ],
+
     usernameUpdatedAt: {
       type: Date,
       default: null,
+    },
+
+    isOnboarded: {
+      type: Boolean,
+      default: false,
     },
   },
   { timestamps: true }

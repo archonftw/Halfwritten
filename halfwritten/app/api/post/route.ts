@@ -1,17 +1,27 @@
 import { currentUser } from "@clerk/nextjs/server";
 import DBconnect from "@/lib/db";
 import Post from "@/models/post";
+import User from "@/models/user";
 
 export async function POST(req: Request) {
   try {
     await DBconnect();
 
-    const user = await currentUser();
+    const clerkUser = await currentUser();
 
-    if (!user) {
+    if (!clerkUser) {
       return Response.json(
         { success: false, message: "Unauthorized" },
         { status: 401 }
+      );
+    }
+
+    const appUser = await User.findOne({ clerkId: clerkUser.id });
+
+    if (!appUser) {
+      return Response.json(
+        { success: false, message: "User not onboarded" },
+        { status: 404 }
       );
     }
 
@@ -27,9 +37,13 @@ export async function POST(req: Request) {
     const newPost = await Post.create({
       title: title.trim(),
       content: content.trim(),
-      authorId: user.id,
-      authorName: `${user.firstName || ""} ${user.lastName || ""}`.trim(),
-      authorImage: user.imageUrl,
+
+      // ✅ IMPORTANT FIXES
+      authorId: appUser._id.toString(),
+      authorName: appUser.anonymousName,
+      authorImage: `https://api.dicebear.com/7.x/thumbs/svg?seed=${
+        appUser.avatarSeed || appUser.anonymousName
+      }`,
     });
 
     return Response.json(
