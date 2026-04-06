@@ -19,16 +19,16 @@ const RESERVED_NAMES = [
 export async function POST(req: Request) {
   try {
     await connectDB();
-
+    //Finding userID of logged In user using clerk auth
     const { userId } = await auth();
+
 
     if (!userId) {
       return NextResponse.json(
-        { success: false, message: "Unauthorized" },
+        { success: false, message: "Unauthorized user: No access" },
         { status: 401 }
       );
     }
-
     const existingUser = await User.findOne({ clerkId: userId });
 
     if (existingUser) {

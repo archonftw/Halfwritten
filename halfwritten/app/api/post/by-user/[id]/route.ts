@@ -10,15 +10,16 @@ interface Params {
 export async function GET(req: Request, { params }: Params) {
   try {
     await connectDB();
+    const {id} = await params;
 
-    if (!mongoose.Types.ObjectId.isValid(params.id)) {
+    if (!mongoose.Types.ObjectId.isValid(id)) {
       return NextResponse.json(
         { success: false, message: "Invalid user ID." },
         { status: 400 }
       );
     }
 
-    const posts = await Post.find({ authorId: params.id }).sort({ createdAt: -1 });
+    const posts = await Post.find({ authorId: id }).sort({ createdAt: -1 });
 
     const formattedPosts = posts.map((post) => ({
       _id: post._id,

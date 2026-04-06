@@ -1,19 +1,12 @@
 import DBconnect from "@/lib/db";
 import Post from "@/models/post";
 import { NextResponse } from "next/server";
-
-
-
-type ParamsType = {
-  params: Promise<{
-    id: string;
-  }>;
-};
+import { ParamsType } from "@/lib/types";
 
 export async function GET(req: Request, { params }: ParamsType) {
+
   try {
     await DBconnect();
-
     const { id } = await params;
 
     const post = await Post.findById(id).lean()
@@ -28,10 +21,9 @@ export async function GET(req: Request, { params }: ParamsType) {
     return Response.json({
       success: true,
       post,
-    });
+    },{status: 200});
   } catch (error) {
-    console.error("Error fetching post:", error);
-
+    console.error("Error in post route :", error);
     return Response.json(
       { success: false, message: "Failed to fetch post" },
       { status: 500 }

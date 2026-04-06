@@ -7,6 +7,12 @@ export type CommentType = {
   createdAt: string; // usually comes as ISO string in frontend
 };
 
+export type ParamsType = {
+  params: Promise<{
+    id: string;
+  }>;
+};
+
 
 export type PostType = {
   _id: string;

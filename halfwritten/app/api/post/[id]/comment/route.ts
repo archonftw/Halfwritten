@@ -2,12 +2,8 @@ import mongoose from "mongoose";
 import DBconnect from "@/lib/db";
 import Post from "@/models/post";
 import { auth, currentUser } from "@clerk/nextjs/server";
+import { ParamsType } from "@/lib/types";
 
-type ParamsType = {
-  params: Promise<{
-    id: string;
-  }>;
-};
 
 export async function GET(req: Request, { params }: ParamsType) {
   try {

@@ -13,7 +13,7 @@ export async function GET(req: Request, { params }: Params) {
     await connectDB();
 
     const { userId } = await auth();
-    const { id } = params;
+    const { id } = await params;
 
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return NextResponse.json(
