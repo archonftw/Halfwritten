@@ -79,36 +79,58 @@ export default function Page() {
       }
     };
 
-    // temporary placeholders until backend APIs are ready
     const fetchFollowers = async () => {
-      try {
-        setLoadingFollowers(true);
+  try {
+    setLoadingFollowers(true);
 
-        // replace this with your real API later
-        // const res = await fetch("/api/user/followers");
-        // const data = await res.json();
-        // if (data.success) setFollowers(data.followers || []);
+    if (!appUser?._id) {
+      setFollowers([]);
+      return;
+    }
 
-        setFollowers([]);
-      } finally {
-        setLoadingFollowers(false);
-      }
-    };
+    const res = await fetch(`/api/by-id/${appUser._id}`);
+    const data = await res.json();
 
-    const fetchFollowing = async () => {
-      try {
-        setLoadingFollowing(true);
+    if (data.success) {
+      setFollowers(data.user.followers || []);
+    } else {
+      setFollowers([]);
+      console.error(data.message);
+    }
+  } catch (error) {
+    console.error("Error fetching followers:", error);
+    setFollowers([]);
+  } finally {
+    setLoadingFollowers(false);
+  }
+};
 
-        // replace this with your real API later
-        // const res = await fetch("/api/user/following");
-        // const data = await res.json();
-        // if (data.success) setFollowingUsers(data.following || []);
+const fetchFollowing = async () => {
+  try {
+    setLoadingFollowing(true);
 
-        setFollowingUsers([]);
-      } finally {
-        setLoadingFollowing(false);
-      }
-    };
+    if (!appUser?._id) {
+      setFollowingUsers([]);
+      return;
+    }
+
+    const res = await fetch(`/api/by-id/${appUser._id}`);
+    const data = await res.json();
+    console.log("Following data:", data);
+
+    if (data.success) {
+      setFollowingUsers(data.user.following || []);
+    } else {
+      setFollowingUsers([]);
+      console.error(data.message);
+    }
+  } catch (error) {
+    console.error("Error fetching following:", error);
+    setFollowingUsers([]);
+  } finally {
+    setLoadingFollowing(false);
+  }
+};
 
     if (isLoaded && user) {
       fetchProfileData();

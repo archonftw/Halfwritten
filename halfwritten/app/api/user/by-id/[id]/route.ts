@@ -25,6 +25,7 @@ export async function GET(req: Request, { params }: Params) {
     const targetUser = await User.findById(id)
       .populate("followers", "anonymousName bio avatarSeed")
       .populate("following", "anonymousName bio avatarSeed");
+      console.log("Target user:", targetUser);
 
     if (!targetUser) {
       return NextResponse.json(
