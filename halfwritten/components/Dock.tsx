@@ -11,6 +11,7 @@ import {
 } from 'motion/react';
 import React, { Children, cloneElement, useEffect, useMemo, useRef, useState } from 'react';
 
+
 export type DockItemData = {
   icon: React.ReactNode;
   label: React.ReactNode;
@@ -169,10 +170,11 @@ export default function Dock({
     aria-label="Application dock"
   >
     <motion.div
-      className={`${className} flex items-end w-fit gap-4 rounded-2xl border-neutral-700 border-2 pb-2 px-4 bg-[#060010]`}
+      className={`${className}  flex items-end w-fit gap-4 rounded-2xl border-neutral-700 border-2 pb-2 px-4 bg-[#060010]`}
       style={{ height: panelHeight }}
     >
       {items.map((item, index) => (
+        
         <DockItem
           key={index}
           onClick={item.onClick}

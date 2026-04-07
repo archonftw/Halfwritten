@@ -1,7 +1,7 @@
 "use client"
 import GradientText from "@/components/GradientText";
 import FlowingMenu from "@/components/FlowingMenu";
-import { loveFont } from "@/lib/fonts";
+import { cormorantFont, loveFont } from "@/lib/fonts";
 import TargetCursor from "@/components/TargetCursor";
 
 export default function Welcome() {
@@ -54,7 +54,7 @@ export default function Welcome() {
       </div>
 
       {/* Flowing Menu Section */}
-      <div style={{ height: '400px', position: 'relative' }} className="sm:h-[500px] md:h-[600px]">
+      <div style={{ height: '400px', position: 'relative' }} className={`sm:h-[500px] md:h-[600px] ${cormorantFont.className}`}>
         <FlowingMenu
           items={demoItems}
           speed={15}
