@@ -5,7 +5,7 @@ import connectDB from "@/lib/db";
 import User from "@/models/user";
 
 interface Params {
-  params: { id: string };
+  params: Promise<{id:string}>
 }
 
 export async function GET(req: Request, { params }: Params) {
