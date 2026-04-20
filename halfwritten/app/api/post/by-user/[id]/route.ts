@@ -4,7 +4,7 @@ import connectDB from "@/lib/db";
 import Post from "@/models/post";
 
 interface Params {
-  params: { id: string };
+  params: Promise<{id:string}>
 }
 
 export async function GET(req: Request, { params }: Params) {
