@@ -102,9 +102,9 @@ export default function ShowPostsClient({ initialPosts }: Props) {
       {filteredPosts.length === 0 ? (
         <p className="ml-4 mt-6 text-gray-400 text-sm">No posts found.</p>
       ) : (
-        <ul className="pb-6 cursor-target">
+        <ul className="pb-6 ">
           {filteredPosts.map((post) => (
-            <li key={post._id}>
+            <li key={post._id}  className="cursor-target">
               <Link href={`/post/${post._id}`}>
                   <div className="p-4 sm:p-6 outline hover:bg-zinc-900 space-y-3">
                     {/* Author Row */}
